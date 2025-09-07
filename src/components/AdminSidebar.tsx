@@ -8,7 +8,8 @@ import {
     User,
     Calendar,
     FileText,
-    LogOut
+    LogOut,
+    Medal
 } from "lucide-react"
 import { authClient } from "@/lib/auth-client"
 
@@ -71,6 +72,12 @@ export const AdminSidebar = ({ currentPath, userName = "Admin" }: AdminSidebarPr
             href: "/admin/programs-admin",
             icon: FileText,
             active: currentPath.includes("/admin/programs")
+        },
+        {
+            label: "Promotions",
+            href: "/admin/promotions",
+            icon: Medal,
+            active: currentPath.includes("/admin/promotions")
         }
     ]
 

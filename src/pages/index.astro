@@ -2,10 +2,6 @@
 import Layout from "../layouts/Layout.astro";
 import SequenceComp from "@/components/home/SequenceComp.astro";
 import InitialModal from "@/components/InitialModal.astro";
-
-if (!Astro.locals.session) {
-  return Astro.redirect("/signin");
-}
 ---
 
 <Layout>

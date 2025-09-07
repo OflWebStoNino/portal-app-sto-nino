@@ -297,7 +297,6 @@ function DocxFiller({ requestLogsForm }: { requestLogsForm: FormLog[] }) {
                                 <SelectContent>
                                     <SelectItem value="/clearance.docx">Clearance</SelectItem>
                                     <SelectItem value="/indigency.docx">Indigency</SelectItem>
-                                    <SelectItem value="/residence.docx">Residence</SelectItem>
                                 </SelectContent>
                             </Select>
 
