@@ -1,5 +1,4 @@
 import { Elysia } from 'elysia';
-import { cache } from '../utils/cache';
 import { getConfig, getRecentPosts, getPriorityPosts, getPostContent, GetAllNews, GetAllAnnouncements, getBrgyPrograms, getBrgyEvents } from '@/db/queries';
 import type { TTLType } from '../types';
 import { userMiddleware } from '../auth';
@@ -33,28 +32,17 @@ export const feedRoutes = new Elysia()
     .derive(({ request }) => userMiddleware(request))
     .group('/api', app => app
         .get('/config', async () => {
-            const cached = await cache.get('config');
-            if (cached) return cached;
 
             const config = await getConfig.execute();
-            await cache.set('config', config, { ex: getTTL('config') });
             return config;
         })
         .get('/feed', async () => {
-            const recent = await cache.get('recent');
-            const priority = await cache.get('priority');
-
-            if (recent && priority) {
-                return { recent, priority };
-            }
 
             const [recentPosts, priorityPosts] = await Promise.all([
                 getRecentPosts.execute(),
                 getPriorityPosts.execute()
             ]);
 
-            await cache.set('recent', recentPosts, { ex: getTTL('recent') });
-            await cache.set('priority', priorityPosts, { ex: getTTL('priority') });
 
             return {
                 recent: recentPosts ?? {},
@@ -66,48 +54,31 @@ export const feedRoutes = new Elysia()
             const page = query.page || '1';
 
             const totalPages = await db.$count(posts, and(eq(posts.type, 'news'), eq(posts.public, true)));
-            const data = await cache.get('news:' + page);
 
-            if (data) {
-                return { data, totalPages: Math.ceil(totalPages / 9) };
-            } else {
-                const data = await GetAllNews.execute({
-                    page: ((parseInt(page as string) || 1) - 1) * 9,
-                });
-                await cache.set('news:' + page, data, { ex: getTTL('recent') });
-                return { data, totalPages: Math.ceil(totalPages / 9) };
-            }
+            const data = await GetAllNews.execute({
+                page: ((parseInt(page as string) || 1) - 1) * 9,
+            });
+            return { data, totalPages: Math.ceil(totalPages / 9) };
         })
         .get('/feed/announcements', async ({ query }) => {
 
             const page = query.page || '1';
 
             const totalPages = await db.$count(posts, and(eq(posts.type, 'announcement'), eq(posts.public, true)));
-            const data = await cache.get('announcements:' + page);
 
-            if (data) {
-                return { data, totalPages: Math.ceil(totalPages / 9) };
 
-            } else {
-                const data = await GetAllAnnouncements.execute({
-                    page: ((parseInt(page as string) || 1) - 1) * 9,
-                });
+            const data = await GetAllAnnouncements.execute({
+                page: ((parseInt(page as string) || 1) - 1) * 9,
+            });
 
-                await cache.set('announcements:' + page, data, { ex: getTTL('recent') });
-
-                return { data, totalPages: Math.ceil(totalPages / 9) };
-            }
+            return { data, totalPages: Math.ceil(totalPages / 9) };
 
         })
         .get('/feed/post/:postId', async ({ params }) => {
-            const cacheKey = `post:${params.postId}`;
-            const cached = await cache.get(cacheKey);
-            if (cached) return cached;
 
             const post = await getPostContent.execute({ postId: params.postId as string });
             const response = { content: post?.content ?? null };
 
-            await cache.set(cacheKey, response, { ex: getTTL('post') });
             return response;
         })
         .post('/feed/cache/invalidate', async ({ user }) => {
@@ -118,14 +89,6 @@ export const feedRoutes = new Elysia()
             if (user.role !== 'admin') {
                 throw new Error('Unauthorized');
             }
-
-            await Promise.all([
-                cache.del('recent'),
-                cache.del('priority'),
-                cache.del('config'),
-                cache.del('request'),
-                cache.destroyAll()
-            ]);
 
             return { success: true, message: 'Cache invalidated successfully' };
         }, {

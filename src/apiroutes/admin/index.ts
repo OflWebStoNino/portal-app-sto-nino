@@ -4,7 +4,6 @@ import { db } from '@/db';
 import { userMiddleware } from '../auth';
 import { bearer } from '@elysiajs/bearer'
 import { requests, brgyPromotionCategories } from '@/db/schema';
-import { cache } from '../utils/cache';
 import { eq } from 'drizzle-orm';
 
 export const adminRoutes = new Elysia()
