@@ -85,16 +85,25 @@ const totalServiceHours = allRequestsWithUpdates.reduce(
   <h2 class="text-xl font-semibold text-slate-800 mb-6">System Statistics</h2>
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
     <!-- Total Requests Card -->
-    <div
-      class="bg-white rounded-lg shadow flex items-center p-3 border-l-8 border-green-700 min-h-[100px]"
+    <a
+      href="/admin/tickets"
+      class="bg-white rounded-lg shadow flex items-center p-3 border-l-8 border-green-700 min-h-[100px] hover:shadow-lg hover:scale-105 transition-all duration-200 cursor-pointer group"
     >
       <div class="flex-1">
-        <div class="text-lg font-medium text-black mb-2">Total Request</div>
-        <div class="text-4xl font-bold text-green-700">{allRequests}</div>
+        <div
+          class="text-lg font-medium text-black mb-2 group-hover:text-green-600 transition-colors"
+        >
+          Total Request
+        </div>
+        <div
+          class="text-4xl font-bold text-green-700 group-hover:text-green-600 transition-colors"
+        >
+          {allRequests}
+        </div>
       </div>
       <div>
         <svg
-          class="w-10 h-10 text-green-700"
+          class="w-10 h-10 text-green-700 group-hover:text-green-600 transition-colors"
           fill="currentColor"
           viewBox="0 0 24 24"
           stroke="none"
@@ -104,16 +113,21 @@ const totalServiceHours = allRequestsWithUpdates.reduce(
           ></path>
         </svg>
       </div>
-    </div>
+    </a>
     <!-- Monthly Requests Card -->
-    <div
-      class="bg-white rounded-lg shadow flex items-center p-3 border-l-8 border-green-700 min-h-[100px]"
+    <a
+      href="/admin/tickets"
+      class="bg-white rounded-lg shadow flex items-center p-3 border-l-8 border-green-700 min-h-[100px] hover:shadow-lg hover:scale-105 transition-all duration-200 cursor-pointer group"
     >
       <div class="flex-1">
-        <div class="text-lg font-medium text-black mb-2">
+        <div
+          class="text-lg font-medium text-black mb-2 group-hover:text-green-600 transition-colors"
+        >
           Requests This Month
         </div>
-        <div class="text-4xl font-bold text-green-700">
+        <div
+          class="text-4xl font-bold text-green-700 group-hover:text-green-600 transition-colors"
+        >
           {latestMonth ? latestMonth.count : 0}
         </div>
         <div class="text-sm text-slate-500 mt-2">
@@ -126,7 +140,7 @@ const totalServiceHours = allRequestsWithUpdates.reduce(
       </div>
       <div>
         <svg
-          class="w-10 h-10 text-green-700"
+          class="w-10 h-10 text-green-700 group-hover:text-green-600 transition-colors"
           fill="currentColor"
           viewBox="0 0 24 24"
           stroke="none"
@@ -134,18 +148,27 @@ const totalServiceHours = allRequestsWithUpdates.reduce(
           <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
         </svg>
       </div>
-    </div>
+    </a>
     <!-- Pending Requests Card -->
-    <div
-      class="bg-white rounded-lg shadow flex items-center p-3 border-l-8 border-green-700 min-h-[100px]"
+    <a
+      href="/admin/tickets"
+      class="bg-white rounded-lg shadow flex items-center p-3 border-l-8 border-green-700 min-h-[100px] hover:shadow-lg hover:scale-105 transition-all duration-200 cursor-pointer group"
     >
       <div class="flex-1">
-        <div class="text-lg font-medium text-black mb-2">Pending Request</div>
-        <div class="text-4xl font-bold text-green-700">{pendingRequests}</div>
+        <div
+          class="text-lg font-medium text-black mb-2 group-hover:text-green-600 transition-colors"
+        >
+          Pending Request
+        </div>
+        <div
+          class="text-4xl font-bold text-green-700 group-hover:text-green-600 transition-colors"
+        >
+          {pendingRequests}
+        </div>
       </div>
       <div>
         <svg
-          class="w-10 h-10 text-green-700"
+          class="w-10 h-10 text-green-700 group-hover:text-green-600 transition-colors"
           fill="currentColor"
           viewBox="0 0 24 24"
           stroke="none"
@@ -153,18 +176,27 @@ const totalServiceHours = allRequestsWithUpdates.reduce(
           <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
         </svg>
       </div>
-    </div>
+    </a>
     <!-- Completed Requests Card -->
-    <div
-      class="bg-white rounded-lg shadow flex items-center p-3 border-l-8 border-green-700 min-h-[100px]"
+    <a
+      href="/admin/tickets"
+      class="bg-white rounded-lg shadow flex items-center p-3 border-l-8 border-green-700 min-h-[100px] hover:shadow-lg hover:scale-105 transition-all duration-200 cursor-pointer group"
     >
       <div class="flex-1">
-        <div class="text-lg font-medium text-black mb-2">Completed Request</div>
-        <div class="text-4xl font-bold text-green-700">{doneRequests}</div>
+        <div
+          class="text-lg font-medium text-black mb-2 group-hover:text-green-600 transition-colors"
+        >
+          Completed Request
+        </div>
+        <div
+          class="text-4xl font-bold text-green-700 group-hover:text-green-600 transition-colors"
+        >
+          {doneRequests}
+        </div>
       </div>
       <div>
         <svg
-          class="w-10 h-10 text-green-700"
+          class="w-10 h-10 text-green-700 group-hover:text-green-600 transition-colors"
           fill="currentColor"
           viewBox="0 0 24 24"
           stroke="none"
@@ -172,18 +204,27 @@ const totalServiceHours = allRequestsWithUpdates.reduce(
           <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
         </svg>
       </div>
-    </div>
+    </a>
     <!-- Total Users Card -->
-    <div
-      class="bg-white rounded-lg shadow flex items-center p-3 border-l-8 border-green-700 min-h-[100px]"
+    <a
+      href="/admin/users-admin"
+      class="bg-white rounded-lg shadow flex items-center p-3 border-l-8 border-green-700 min-h-[100px] hover:shadow-lg hover:scale-105 transition-all duration-200 cursor-pointer group"
     >
       <div class="flex-1">
-        <div class="text-lg font-medium text-black mb-2">Total Users</div>
-        <div class="text-4xl font-bold text-green-700">{usersCount}</div>
+        <div
+          class="text-lg font-medium text-black mb-2 group-hover:text-green-600 transition-colors"
+        >
+          Total Users
+        </div>
+        <div
+          class="text-4xl font-bold text-green-700 group-hover:text-green-600 transition-colors"
+        >
+          {usersCount}
+        </div>
       </div>
       <div>
         <svg
-          class="w-10 h-10 text-green-700"
+          class="w-10 h-10 text-green-700 group-hover:text-green-600 transition-colors"
           fill="currentColor"
           viewBox="0 0 24 24"
           stroke="none"
@@ -193,20 +234,27 @@ const totalServiceHours = allRequestsWithUpdates.reduce(
           ></path>
         </svg>
       </div>
-    </div>
+    </a>
     <!-- Approved Users Card -->
-    <div
-      class="bg-white rounded-lg shadow flex items-center p-3 border-l-8 border-green-700 min-h-[100px]"
+    <a
+      href="/admin/users-admin"
+      class="bg-white rounded-lg shadow flex items-center p-3 border-l-8 border-green-700 min-h-[100px] hover:shadow-lg hover:scale-105 transition-all duration-200 cursor-pointer group"
     >
       <div class="flex-1">
-        <div class="text-lg font-medium text-black mb-2">Approved User</div>
-        <div class="text-4xl font-bold text-green-700">
+        <div
+          class="text-lg font-medium text-black mb-2 group-hover:text-green-600 transition-colors"
+        >
+          Approved User
+        </div>
+        <div
+          class="text-4xl font-bold text-green-700 group-hover:text-green-600 transition-colors"
+        >
           {approvedUsersCount}
         </div>
       </div>
       <div>
         <svg
-          class="w-10 h-10 text-green-700"
+          class="w-10 h-10 text-green-700 group-hover:text-green-600 transition-colors"
           fill="currentColor"
           viewBox="0 0 24 24"
           stroke="none"
@@ -216,22 +264,27 @@ const totalServiceHours = allRequestsWithUpdates.reduce(
           ></path>
         </svg>
       </div>
-    </div>
+    </a>
     <!-- Total Users With Family Registered Card -->
-    <div
-      class="bg-white rounded-lg shadow flex items-center p-3 border-l-8 border-green-700 min-h-[100px]"
+    <a
+      href="/admin/users-admin"
+      class="bg-white rounded-lg shadow flex items-center p-3 border-l-8 border-green-700 min-h-[100px] hover:shadow-lg hover:scale-105 transition-all duration-200 cursor-pointer group"
     >
       <div class="flex-1">
-        <div class="text-lg font-medium text-black mb-2">
+        <div
+          class="text-lg font-medium text-black mb-2 group-hover:text-green-600 transition-colors"
+        >
           Total Users With Family Registered
         </div>
-        <div class="text-4xl font-bold text-green-700">
+        <div
+          class="text-4xl font-bold text-green-700 group-hover:text-green-600 transition-colors"
+        >
           {usersWIthFamilyRegistered.length}
         </div>
       </div>
       <div>
         <svg
-          class="w-10 h-10 text-green-700"
+          class="w-10 h-10 text-green-700 group-hover:text-green-600 transition-colors"
           fill="currentColor"
           viewBox="0 0 24 24"
           stroke="none"
@@ -241,18 +294,27 @@ const totalServiceHours = allRequestsWithUpdates.reduce(
           ></path>
         </svg>
       </div>
-    </div>
+    </a>
     <!-- Total Residents Card -->
-    <div
-      class="bg-white rounded-lg shadow flex items-center p-3 border-l-8 border-teal-700 min-h-[100px]"
+    <a
+      href="/admin/users-admin"
+      class="bg-white rounded-lg shadow flex items-center p-3 border-l-8 border-teal-700 min-h-[100px] hover:shadow-lg hover:scale-105 transition-all duration-200 cursor-pointer group"
     >
       <div class="flex-1">
-        <div class="text-lg font-medium text-black mb-2">Total Residents</div>
-        <div class="text-4xl font-bold text-teal-700">{totalResidents}</div>
+        <div
+          class="text-lg font-medium text-black mb-2 group-hover:text-teal-600 transition-colors"
+        >
+          Total Residents
+        </div>
+        <div
+          class="text-4xl font-bold text-teal-700 group-hover:text-teal-600 transition-colors"
+        >
+          {totalResidents}
+        </div>
       </div>
       <div>
         <svg
-          class="w-10 h-10 text-teal-700"
+          class="w-10 h-10 text-teal-700 group-hover:text-teal-600 transition-colors"
           fill="currentColor"
           viewBox="0 0 24 24"
           stroke="none"
@@ -262,16 +324,21 @@ const totalServiceHours = allRequestsWithUpdates.reduce(
           ></path>
         </svg>
       </div>
-    </div>
+    </a>
     <!-- Total Service Hours Card -->
-    <div
-      class="bg-white rounded-lg shadow flex items-center p-3 border-l-8 border-green-700 min-h-[100px]"
+    <a
+      href="/admin/tickets"
+      class="bg-white rounded-lg shadow flex items-center p-3 border-l-8 border-green-700 min-h-[100px] hover:shadow-lg hover:scale-105 transition-all duration-200 cursor-pointer group"
     >
       <div class="flex-1">
-        <div class="text-lg font-medium text-black mb-2">
+        <div
+          class="text-lg font-medium text-black mb-2 group-hover:text-green-600 transition-colors"
+        >
           Total Service Hours
         </div>
-        <div class="text-4xl font-bold text-green-700">
+        <div
+          class="text-4xl font-bold text-green-700 group-hover:text-green-600 transition-colors"
+        >
           {
             totalServiceHours.toLocaleString(undefined, {
               maximumFractionDigits: 2,
@@ -281,7 +348,7 @@ const totalServiceHours = allRequestsWithUpdates.reduce(
       </div>
       <div>
         <svg
-          class="w-10 h-10 text-green-700"
+          class="w-10 h-10 text-green-700 group-hover:text-green-600 transition-colors"
           fill="currentColor"
           viewBox="0 0 24 24"
           stroke="none"
@@ -289,7 +356,7 @@ const totalServiceHours = allRequestsWithUpdates.reduce(
           <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
         </svg>
       </div>
-    </div>
+    </a>
   </div>
 
   <!-- Family Statistics Charts -->

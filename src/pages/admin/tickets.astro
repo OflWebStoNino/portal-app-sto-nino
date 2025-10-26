@@ -1,0 +1,152 @@
+---
+import { RequestForm } from "@/components/RequestForm";
+import { RequestsTable } from "@/components/requests/RequestsTable";
+import { TicketsTable } from "@/components/TicketsTable";
+import Layout from "@/layouts/AdminLayout.astro";
+
+const { searchParams } = Astro.url;
+const page = searchParams.get("page") || "1";
+
+// Check user authentication and approval status
+const isLoggedIn = !!Astro.locals.session;
+const isApproved = Astro.locals.user?.approved === true;
+const isRejected = Astro.locals.user?.rejected === true;
+const userRole = Astro.locals.user?.role;
+---
+
+<Layout>
+  <div class="p-6 space-y-6">
+    <div class="rounded-lg bg-card p-6 shadow-md">
+      {
+        !isLoggedIn ? (
+          // Not logged in UI
+          <div class="text-center py-12">
+            <div class="mb-6">
+              <svg
+                class="mx-auto h-24 w-24 text-gray-300"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                />
+              </svg>
+            </div>
+            <h1 class="text-3xl font-bold text-gray-900 mb-4">
+              Login Required
+            </h1>
+            <p class="text-gray-600 mb-6 max-w-md mx-auto">
+              You need to be logged in to access the request portal. Please log
+              in to continue.
+            </p>
+            <a
+              href="/"
+              class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-bg hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+            >
+              Go to Login
+            </a>
+          </div>
+        ) : !isApproved && !isRejected ? (
+          // Logged in but not approved UI
+          <div class="text-center py-12">
+            <div class="mb-6">
+              <svg
+                class="mx-auto h-24 w-24 text-yellow-300"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 15.5c-.77.833.192 2.5 1.732 2.5z"
+                />
+              </svg>
+            </div>
+            <h1 class="text-3xl font-bold text-gray-900 mb-4">
+              Approval Pending
+            </h1>
+            <p class="text-gray-600 mb-6 max-w-md mx-auto">
+              Your account is awaiting approval from an administrator. Please
+              wait for approval to access the request portal.
+            </p>
+            <div class="bg-yellow-50 border border-yellow-200 rounded-md p-4 max-w-md mx-auto">
+              <div class="flex">
+                <div class="flex-shrink-0">
+                  <svg
+                    class="h-5 w-5 text-yellow-400"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                      clip-rule="evenodd"
+                    />
+                  </svg>
+                </div>
+                <div class="ml-3">
+                  <p class="text-sm text-yellow-700">
+                    You will receive access once an administrator approves your
+                    account.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : isRejected ? (
+          // Logged in but rejected UI
+          <div class="text-center py-12">
+            <div class="mb-6">
+              <svg
+                class="mx-auto h-24 w-24 text-red-300"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 15.5c-.77.833.192 2.5 1.732 2.5z"
+                />
+              </svg>
+            </div>
+            <h1 class="text-3xl font-bold text-gray-900 mb-4">
+              Account Rejected
+            </h1>
+            <p class="text-gray-600 mb-6 max-w-md mx-auto">
+              Your account has been rejected by an administrator. Please contact
+              the administrator for more information.
+            </p>
+          </div>
+        ) : (
+          // Logged in and approved - show normal content
+          <>
+            <h1 class="text-3xl font-bold mb-2">
+              {userRole === "admin" ? "Admin" : "User"} Request Portal
+            </h1>
+            <p class="text-gray-600 mb-6">
+              Submit and track your document requests, permits, and other
+              applications
+            </p>
+
+            {userRole === "admin" ? (
+              <RequestsTable client:only />
+            ) : (
+              <>
+                <RequestForm client:only />
+                <TicketsTable client:only />
+              </>
+            )}
+          </>
+        )
+      }
+    </div>
+  </div>
+</Layout>

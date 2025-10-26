@@ -9,11 +9,9 @@ import { Drawer, DrawerTrigger, DrawerContent } from "./ui/drawer"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "./ui/accordion"
 
 
-
-
 export const MainHeader = ({ role, pathname, approved, hasSession, rejected, isAdmin }: { role: string | null, pathname: string, approved: boolean, hasSession: boolean, rejected: boolean, isAdmin: boolean }) => {
     return (
-        <section className="w-full px-8 text-white  bg-gradient-to-t from-green-500 to-black/90 fixed top-0 z-50">
+        <section className="w-full px-8 text-white  bg-green-500 fixed top-0 z-50">
             <div className="container flex flex-row items-center justify-between text-center py-5 mx-auto w-full">
                 {/* Logo */}
                 <a href="/" className="flex items-center font-medium text-gray-900">

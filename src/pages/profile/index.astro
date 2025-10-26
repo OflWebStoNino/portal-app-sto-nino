@@ -1,32 +1,10 @@
 ---
 import Layout from "@/layouts/Layout.astro";
+import { ProfileManager } from "@/components/ProfileManager.tsx";
 
 const user = Astro.locals.user;
 ---
 
 <Layout title="Profile">
-  <div class="container mx-auto max-w-7xl">
-    {
-      user && (
-        <div class="p-4">
-          <h2 class="text-2xl font-bold mb-4">Profile</h2>
-          <div class="space-y-2">
-            <p>
-              <span class="font-semibold">Name:</span> {user.name}
-            </p>
-            <p>
-              <span class="font-semibold">Email:</span> {user.email}
-            </p>
-          </div>
-        </div>
-      )
-    }
-    {
-      !user && (
-        <div class="p-4">
-          <p>Please log in to view your profile.</p>
-        </div>
-      )
-    }
-  </div>
+  <ProfileManager client:load />
 </Layout>

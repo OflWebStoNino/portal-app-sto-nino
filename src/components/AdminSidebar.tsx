@@ -9,7 +9,8 @@ import {
     Calendar,
     FileText,
     LogOut,
-    Medal
+    Medal,
+    Ticket
 } from "lucide-react"
 import { authClient } from "@/lib/auth-client"
 
@@ -78,6 +79,12 @@ export const AdminSidebar = ({ currentPath, userName = "Admin" }: AdminSidebarPr
             href: "/admin/promotions",
             icon: Medal,
             active: currentPath.includes("/admin/promotions")
+        },
+        {
+            label: "Tickets",
+            href: "/admin/tickets",
+            icon: Ticket,
+            active: currentPath.includes("/admin/tickets")
         }
     ]
 
@@ -86,10 +93,8 @@ export const AdminSidebar = ({ currentPath, userName = "Admin" }: AdminSidebarPr
             {/* Logo Section */}
             <div className="p-6 border-b border-gray-200">
                 <div className="flex items-center space-x-3">
-                    <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center">
-                        <span className="text-white text-xs font-bold text-center leading-tight">
-                            BARANGAY<br />STO. NIÑO<br />SAGISAG
-                        </span>
+                    <div className=" rounded-full flex items-center justify-center">
+                        <img src="/brgy-logo.png" alt="Barangay Logo" className="h-10 aspect-square" />
                     </div>
                     <div>
                         <h1 className="text-lg font-bold text-gray-900">Barangay Sto. Niño</h1>

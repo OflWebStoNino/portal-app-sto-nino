@@ -193,4 +193,76 @@ export const requestRoutes = new Elysia()
                 chat
             };
         })
+        .get("/request/:requestId/user-details", async ({ params, user }) => {
+            if (!params.requestId) {
+                throw new Error('Request ID is required');
+            }
+            if (!user) {
+                throw new Error('Unauthorized');
+            }
+
+            // Get the request with user details
+            const request = await getRequest.execute({ requestId: params.requestId as string });
+
+            if (!request) {
+                throw new Error('Request not found');
+            }
+
+            // Check if user has permission to view this request
+            if (user.role !== 'admin' && request.userId !== user.id) {
+                throw new Error('Unauthorized');
+            }
+
+            // Get additional user details if needed
+            const userDetails = await getUserDetails.execute({ userId: request.userId });
+
+            return {
+                request: {
+                    id: request.id,
+                    type: request.type,
+                    details: request.details,
+                    status: request.status,
+                    createdAt: request.createdAt
+                },
+                userDetails: userDetails,
+                userProfile: request.user
+            };
+        }, {
+            detail: {
+                tags: ['Requests'],
+                security: [{ BearerAuth: [] }],
+                description: 'Get user details and request information for a specific request',
+                params: {
+                    requestId: { type: 'string', description: 'ID of the request to get user details for' }
+                },
+                responses: {
+                    200: {
+                        description: 'User details and request information retrieved successfully',
+                        content: {
+                            'application/json': {
+                                schema: {
+                                    type: 'object',
+                                    properties: {
+                                        request: {
+                                            type: 'object',
+                                            properties: {
+                                                id: { type: 'string' },
+                                                type: { type: 'string' },
+                                                details: { type: 'string' },
+                                                status: { type: 'string' },
+                                                createdAt: { type: 'string' }
+                                            }
+                                        },
+                                        userDetails: { type: 'object' },
+                                        userProfile: { type: 'object' }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    401: { description: 'Unauthorized' },
+                    404: { description: 'Request not found' }
+                }
+            }
+        })
     );

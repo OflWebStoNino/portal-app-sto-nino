@@ -103,7 +103,7 @@ export const RequestDetailsRight = ({ requestId, userId, isAdmin }: { requestId:
 
     return (
         <div className="flex-1 border rounded-xl p-6 relative overflow-hidden">
-            {isAdmin && (<Drawer requestLogsForm={requestLogsForm} />)}
+            {isAdmin && (<Drawer requestLogsForm={requestLogsForm} requestId={requestId} />)}
             <h2 className="text-2xl font-bold text-gray-900 mb-8">
                 Request Timelines
             </h2>
@@ -302,7 +302,7 @@ export const RequestDetailsRight = ({ requestId, userId, isAdmin }: { requestId:
 }
 
 
-const Drawer = ({ requestLogsForm }: { requestLogsForm: FormLog[] }) => {
+const Drawer = ({ requestLogsForm, requestId }: { requestLogsForm: FormLog[], requestId: string }) => {
 
     const [open, setOpen] = useState(false)
 
@@ -316,7 +316,7 @@ const Drawer = ({ requestLogsForm }: { requestLogsForm: FormLog[] }) => {
                     <DrawerTitle>Generate Document</DrawerTitle>
                     <DrawerDescription>Please fill up the form below to generate a document.</DrawerDescription>
                 </DrawerHeader>
-                <DocxFiller requestLogsForm={requestLogsForm} />
+                <DocxFiller requestLogsForm={requestLogsForm} requestId={requestId} />
                 <DrawerFooter>
                     <DrawerClose asChild>
                         <Button variant="outline">Close</Button>
