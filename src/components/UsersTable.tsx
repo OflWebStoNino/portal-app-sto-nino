@@ -139,7 +139,7 @@ const UsersTableNest = ({ users, isLoading, error }: { users: User[] | undefined
                                 {user.approved && (
                                     <form onSubmit={() => approveUser(user.id, false)} method="post">
                                         <Button className="w-24" variant="destructive" size="icon">
-                                            Unapprove
+                                            Disapprove
                                         </Button>
                                     </form>
                                 )}

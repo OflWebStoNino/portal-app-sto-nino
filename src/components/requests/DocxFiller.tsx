@@ -7,7 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Label } from '../ui/label';
 import { Card } from "../ui/card";
 import type { FormLog } from '@/db/schema';
-import { cn } from '@/lib/utils';
+import { cn, fetcher } from '@/lib/utils';
+import useSWR from 'swr';
 
 interface FormData {
     fullName: string;
@@ -19,12 +20,23 @@ interface FormData {
     purpose: string;
     currentDate: string;
     yearsOfResidence?: string; // New field for residence certificate
+    // Barangay Officials data (simplified)
+    chairman: {
+        name: string;
+        position: string;
+        description?: string;
+    };
+    councilors: Array<{
+        name: string;
+        position: string;
+        description?: string;
+    }>;
 }
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ALLOWED_FILE_TYPE = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
 
-function DocxFiller({ requestLogsForm }: { requestLogsForm: FormLog[] }) {
+function DocxFiller({ requestLogsForm, requestId }: { requestLogsForm: FormLog[], requestId: string }) {
     const [formData, setFormData] = useState<FormData>({
         fullName: '',
         age: 0,
@@ -35,6 +47,8 @@ function DocxFiller({ requestLogsForm }: { requestLogsForm: FormLog[] }) {
         purpose: '',
         currentDate: new Date().toISOString().split('T')[0],
         yearsOfResidence: '',
+        chairman: { name: '', position: '', description: '' },
+        councilors: [],
     });
 
     const [docxFile, setDocxFile] = useState<File | null>(null);
@@ -43,6 +57,40 @@ function DocxFiller({ requestLogsForm }: { requestLogsForm: FormLog[] }) {
     const [error, setError] = useState<string>('');
     const [showJsonPreview, setShowJsonPreview] = useState(false);
     const [selectedLogIndex, setSelectedLogIndex] = useState<number | null>(null);
+    const [selectedInitialDetails, setSelectedInitialDetails] = useState<boolean>(false);
+
+    // Fetch user details for the request
+    const { data: userDetailsData, isLoading: isLoadingUserDetails, error: errorUserDetails } = useSWR(
+        `/api/request/${requestId}/user-details`,
+        fetcher
+    );
+
+    // Fetch officials data
+    const { data: officialsData, isLoading: isLoadingOfficials, error: errorOfficials } = useSWR(
+        '/api/feed/officers',
+        fetcher
+    );
+
+    // Helper function to process officials data
+    const processOfficialsData = () => {
+        if (!officialsData?.officials) {
+            return {
+                chairman: { name: '', position: '', description: '' },
+                councilors: [],
+            };
+        }
+
+        const mainOfficials = officialsData.officials;
+
+        // Process barangay officials
+        const chairman = mainOfficials.find((o: any) => o.position === 'chairman') || { name: '', position: 'chairman', description: '' };
+        const councilors = mainOfficials.filter((o: any) => o.position === 'councilor');
+
+        return {
+            chairman,
+            councilors,
+        };
+    };
 
     const handleTemplateChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
         const templatePath = e.target.value;
@@ -115,14 +163,30 @@ function DocxFiller({ requestLogsForm }: { requestLogsForm: FormLog[] }) {
         try {
             const fileDoc = await fetch(selectedTemplate).then((res) => res.blob());
             const templateArrayBuffer = await fileDoc.arrayBuffer();
+
+            // Process officials data
+            const officialsData = processOfficialsData();
+
+            // Combine form data with officials data
+            const documentData = {
+                ...formData,
+                ...officialsData,
+                // Format current date for display
+                currentDate: new Date().toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                })
+            };
+
             const filledDocument = await createReport({
                 template: new Uint8Array(templateArrayBuffer),
-                data: formData,
+                data: documentData,
                 cmdDelimiter: ['+++INS', '+++'],
                 noSandbox: true,
             });
 
-            const blob = new Blob([filledDocument], {
+            const blob = new Blob([filledDocument.buffer as ArrayBuffer], {
                 type: ALLOWED_FILE_TYPE,
             });
             saveAs(blob, `${formData.fullName}_Document_${Date.now()}.docx`);
@@ -137,6 +201,10 @@ function DocxFiller({ requestLogsForm }: { requestLogsForm: FormLog[] }) {
     const handleLogSelection = (index: number) => {
         const selectedLog = requestLogsForm[index];
         setSelectedLogIndex(index);
+        setSelectedInitialDetails(false); // Clear initial details selection
+
+        const officialsData = processOfficialsData();
+
         setFormData({
             fullName: selectedLog.form?.fullName || '',
             age: selectedLog.form?.birthDate ? Math.floor((new Date().getTime() - new Date(selectedLog.form.birthDate).getTime()) / (365.25 * 24 * 60 * 60 * 1000)) : 0,
@@ -147,8 +215,46 @@ function DocxFiller({ requestLogsForm }: { requestLogsForm: FormLog[] }) {
             purpose: selectedLog.form?.purpose || '',
             currentDate: new Date().toISOString().split('T')[0],
             yearsOfResidence: selectedLog.form?.yearsOfResidence || '',
+            ...officialsData,
         });
-        setSelectedTemplate(selectedLog.docType === 'residence' ? '/residence.docx' : selectedLog.docType === 'indigency' ? '/indigency.docx' : '/clearance.docx');
+        setSelectedTemplate(selectedLog.docType === 'indigency' ? '/indigency.docx' : '/clearance.docx');
+    };
+
+    const handleInitialDetailsSelection = () => {
+        if (!userDetailsData?.userProfile?.details || !userDetailsData?.request) return;
+
+        const userDetails = userDetailsData.userProfile.details;
+        const request = userDetailsData.request;
+        const userProfile = userDetailsData.userProfile;
+
+        setSelectedInitialDetails(true);
+        setSelectedLogIndex(null); // Clear form log selection
+
+        // Calculate age from birth date if available
+        const age = userDetails?.birthDate ?
+            Math.floor((new Date().getTime() - new Date(userDetails.birthDate).getTime()) / (365.25 * 24 * 60 * 60 * 1000)) : 0;
+
+        // Determine template based on request type
+        let templatePath = '/clearance.docx'; // default
+        if (request.type === 'indigency') {
+            templatePath = '/indigency.docx';
+        }
+        setSelectedTemplate(templatePath);
+
+        const officialsData = processOfficialsData();
+
+        setFormData({
+            fullName: `${userDetails?.firstName || ''} ${userDetails?.lastName || ''}`.trim() || userProfile?.name || '',
+            age: age,
+            birthDate: userDetails?.birthDate || '',
+            birthPlace: '', // Not available in user details
+            currentAddress: userDetails?.address || '',
+            completeAddress: userDetails?.address || '',
+            purpose: request.details || '', // Use request details as purpose
+            currentDate: new Date().toISOString().split('T')[0],
+            yearsOfResidence: '', // Not available in user details
+            ...officialsData,
+        });
     };
 
     // Update the button in the return statement
@@ -157,6 +263,67 @@ function DocxFiller({ requestLogsForm }: { requestLogsForm: FormLog[] }) {
             <div className="flex h-full">
                 {/* Sidebar with form logs */}
                 <div className=" w-1/3 border-r border-slate-200 p-4 overflow-y-auto">
+                    {/* Initial Details Section */}
+                    <div className="mb-6">
+                        <h2 className="text-lg font-semibold text-gray-800 mb-4">Initial Details</h2>
+                        {isLoadingUserDetails ? (
+                            <div className="flex items-center justify-center p-4">
+                                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900"></div>
+                            </div>
+                        ) : errorUserDetails ? (
+                            <Card className="p-3 bg-red-50 border-red-200">
+                                <p className="text-sm text-red-700">Error loading user details</p>
+                            </Card>
+                        ) : userDetailsData?.userProfile?.details ? (
+                            <Card className={cn('p-3 cursor-pointer hover:bg-slate-100', selectedInitialDetails && 'border-2 border-blue-500')}>
+                                <div className="flex justify-between items-start">
+                                    <div>
+                                        <h3 className="font-medium">Request Details</h3>
+                                        <p className="text-sm text-gray-600">
+                                            {userDetailsData.userProfile.details.firstName} {userDetailsData.userProfile.details.lastName}
+                                        </p>
+                                        <p className="text-xs text-gray-500">
+                                            Request Type: {userDetailsData.request?.type}
+                                        </p>
+                                        <p className="text-xs text-gray-500">
+                                            Status: {userDetailsData.request?.status}
+                                        </p>
+                                    </div>
+                                    <button
+                                        className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded hover:bg-green-200"
+                                        onClick={handleInitialDetailsSelection}
+                                    >
+                                        Use this data
+                                    </button>
+                                </div>
+                                <div className="mt-2 space-y-1">
+                                    <div className="text-xs text-gray-500">
+                                        <strong>Purpose:</strong> {userDetailsData.request?.details}
+                                    </div>
+                                    <div className="text-xs text-gray-500">
+                                        <strong>Age:</strong> {userDetailsData.userProfile.details.birthDate ?
+                                            Math.floor((new Date().getTime() - new Date(userDetailsData.userProfile.details.birthDate).getTime()) / (365.25 * 24 * 60 * 60 * 1000))
+                                            : 'Not provided'}
+                                    </div>
+                                    <div className="text-xs text-gray-500">
+                                        <strong>Birth Date:</strong> {userDetailsData.userProfile.details.birthDate || 'Not provided'}
+                                    </div>
+                                    <div className="text-xs text-gray-500">
+                                        <strong>Current Address:</strong> {userDetailsData.userProfile.details.address || 'Not provided'}
+                                    </div>
+                                    <div className="text-xs text-gray-500">
+                                        <strong>Complete Address:</strong> {userDetailsData.userProfile.details.address || 'Not provided'}
+                                    </div>
+                                </div>
+                            </Card>
+                        ) : (
+                            <Card className="p-3 bg-yellow-50 border-yellow-200">
+                                <p className="text-sm text-yellow-700">No user details available</p>
+                            </Card>
+                        )}
+                    </div>
+
+                    {/* Submitted Forms Section */}
                     <h2 className="text-lg font-semibold text-gray-800 mb-4">Submitted Forms</h2>
                     <div className='space-y-2'>
                         {requestLogsForm.map((log, index) => (

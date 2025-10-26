@@ -44,6 +44,39 @@ export const auth = betterAuth({
                 defaultValue: false,
                 input: false
             }
+        },
+        changeEmail: {
+            enabled: true,
+            sendChangeEmailVerification: async ({ user, newEmail, url, token }, request) => {
+                const html = `<p>Click <a href="${url}">here</a> to approve the email change to ${newEmail}.</p>
+                              <p>If you did not request this change, please ignore this email.</p>`;
+                await transporter.sendMail({
+                    from: SENDGRID_EMAIL,
+                    to: user.email,
+                    subject: 'Approve Email Change',
+                    html
+                });
+            }
+        },
+        deleteUser: {
+            enabled: true,
+            sendDeleteAccountVerification: async ({ user, url, token }, request) => {
+                const html = `<p>Click <a href="${url}">here</a> to permanently delete your account.</p>
+                              <p>This action cannot be undone and will remove all your data.</p>
+                              <p>If you did not request this deletion, please ignore this email.</p>`;
+                await transporter.sendMail({
+                    from: SENDGRID_EMAIL,
+                    to: user.email,
+                    subject: 'Confirm Account Deletion',
+                    html
+                });
+            }
+        }
+    },
+    account: {
+        accountLinking: {
+            enabled: true,
+            trustedProviders: ["google", "github"]
         }
     },
     hooks: {
